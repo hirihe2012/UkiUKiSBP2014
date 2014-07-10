@@ -9,7 +9,7 @@ Servo myservo;  // create servo object to control a servo
 
 
 /* Altitude of balloon bursting */
-static const double AltiBurstBalloon =  60.0 ; // unit is metars [m]
+static const double AltiBurstBalloon =  21000.0 ; // unit is metars [m]
 double tempD;
 
 /*
