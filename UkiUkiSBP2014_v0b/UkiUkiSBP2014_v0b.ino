@@ -2,7 +2,7 @@
 //The version is 0.1b  
 // by Mujirushi Seisakusyo IRIE Ltd. (2014July10)
 
-static const long BurstTmie_ms = 300000;  //10min x 60 x 1000 = 600000
+static const long BurstTmie_ms = 300000;  //5min x 60 x 1000 = 300000
 
 //Controlling a servo position using a potentiometer (variable resistor) 
 // by Michal Rinott <http://people.interaction-ivrea.it/m.rinott> 
