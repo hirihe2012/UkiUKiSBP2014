@@ -9,7 +9,7 @@ Servo myservo;  // create servo object to control a servo
 
 
 /* Altitude of balloon bursting */
-static const double AltiBurstBalloon =  21000.0 ; // unit is metars [m]
+static const double AltiBurstBalloon =  5.0 ; // unit is metars [m]
 double tempD;
 
 /*
@@ -44,6 +44,8 @@ unsigned long chg_time = 500;
 void Balloon_Burster(int times)
 {
   int i;
+  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  
   for(i=0;i<times;i++)
   {
     val2 = analogRead(potpin2);
@@ -54,7 +56,7 @@ void Balloon_Burster(int times)
     val1 = analogRead(potpin1);      
     val2 = map(val1, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
     myservo.write(val1);   
-    delay(val2);   Serial.print(F(" giko  ~"));
+    delay(val2);   Serial.println(F(" giko  ~"));
   }
   
 }
@@ -86,6 +88,19 @@ void LEDchikachika(int times)
     
     digitalWrite(led_out,LOW);
 }
+
+void Startsound(int timesound)
+{
+  int i;
+  
+ for(i=0;i<timesound;i++)
+ {
+ tone(12,440,200);
+ delay(300);
+ }
+ 
+}
+
 
 // The TinyGPS++ object
 TinyGPSPlus gps;
@@ -130,10 +145,10 @@ void setup()
   pinMode(led_out,OUTPUT);
   pinMode(mode_sw,INPUT);
   
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  //myservo.attach(9);  // attaches the servo on pin 9 to the servo object
   
- if(digitalRead(mode_sw) == _ON) //モードスイッチがオンならば、
-     Balloon_Burster(5);  //最初の５回は試し動作を行う。
+// if(digitalRead(mode_sw) == _ON) //モードスイッチがオンならば、
+//     Balloon_Burster(5);  //最初の５回は試し動作を行う。
      
  StartTime = millis();
 }
@@ -157,7 +172,7 @@ void loop()
    }
    else{
      Serial.println(F(" Just burn !"));
-     Balloon_Burster(50);  // 50回動作させる
+    Balloon_Burster(50);  // 50回動作させる
    }
   
   }
