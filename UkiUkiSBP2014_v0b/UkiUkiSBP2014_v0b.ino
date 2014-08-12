@@ -2,7 +2,7 @@
 //The version is 0.1b  
 // by Mujirushi Seisakusyo IRIE Ltd. (2014July10)
 
-static const int BurstTime_min = 1;   //5min
+static const int BurstTime_min = 10;   //5min
 long BurstTmie_ms;  // = 300000;  burstTime_min x 60 x 1000 ms
 
 //Controlling a servo position using a potentiometer (variable resistor) 
@@ -20,7 +20,7 @@ unsigned long StartTime;
 int potpin0 = 0;  // analog pin0 used for Cutter Position of pauseing to connect the potentiometer
 int potpin1 = 1;  // analog pin1 used for Cutter Position of cutting to connect the potentiometer
 int potpin2 = 2;  // analog pin2 used for timer to connect the potentiometer
-int val0,val1,val2;    // variable to read the value from the analog pin 
+int val0=170, val1=20,val2=1020;    // variable to read the value from the analog pin 
 
 int led_out = 13; // LED connected to digital pin 13
 int mode_sw = 4; // mode SW connected to digital pin 4
@@ -61,23 +61,19 @@ void sounds(){
 void Balloon_Burster(int times)
 {
   int i;
-  
+   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+ 
   sounds();
   
 //  tone(12,440,300);
   for(i=0;i<times;i++)
   {
-    val2 = analogRead(potpin2);
-    val0 = analogRead(potpin0);      
-    val0 = map(val0, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
-    myservo.write(val0);   
-    delay(val2);
-    val1 = analogRead(potpin1);      
-    val2 = map(val1, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
     myservo.write(val1);   
+    delay(val2);
+    myservo.write(val0);   
     delay(val2);   
   }
-  
+   myservo.detach();
 }
  
 void LEDchika(void)
@@ -117,7 +113,9 @@ void setup()
   pinMode(mode_sw,INPUT);
   
   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
-  
+  myservo.write(val0);
+  delay(2000);
+  myservo.detach();
   BurstTmie_ms= (long)BurstTime_min * 60 *1000;
   
  //if(digitalRead(mode_sw) == _ON) //モードスイッチがオンならば、

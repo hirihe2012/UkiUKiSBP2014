@@ -33,7 +33,10 @@ unsigned long StartTime;
 int potpin0 = 0;  // analog pin0 used for Cutter Position of pauseing to connect the potentiometer
 int potpin1 = 1;  // analog pin1 used for Cutter Position of cutting to connect the potentiometer
 int potpin2 = 2;  // analog pin2 used for timer to connect the potentiometer
-int val0,val1,val2;    // variable to read the value from the analog pin 
+//int val0,val1,val2;    // variable to read the value from the analog pin 
+int val0=170;
+int val1=20;
+int val2=500;    // variable to read the value from the analog pin 
 
 int led_out = 13; // LED connected to digital pin 13
 int mode_sw = 4; // mode SW connected to digital pin 4
@@ -44,23 +47,20 @@ unsigned long chg_time = 500;
 void Balloon_Burster(int times)
 {
   int i;
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+ 
+//  sounds();
   
+//  tone(12,440,300);
   for(i=0;i<times;i++)
   {
-    val2 = analogRead(potpin2);
-    val0 = analogRead(potpin0);      
-    val0 = map(val0, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
-    myservo.write(val0);   
-    delay(val2);  Serial.print(F(" giko"));
-    val1 = analogRead(potpin1);      
-    val2 = map(val1, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
     myservo.write(val1);   
-    delay(val2);   Serial.println(F(" giko  ~"));
+    delay(val2);
+    myservo.write(val0);   
+    delay(val2);   
   }
-  
+   myservo.detach();
 }
- 
 /*
 void LEDchika(void)
 {
@@ -99,9 +99,9 @@ void LEDchikachika(int times)
    int i;
    int ftone;
    
-   i=times;
+   i=times; 
    while(i)
-   if(millis() - prev_time > 100){
+   if(millis() - prev_time > 70){
     
      prev_time = millis(); i--;
       if(digitalRead(led_out) == LOW)
@@ -111,9 +111,9 @@ void LEDchikachika(int times)
     }
     
     if(times<4) 
-     tone(12,110,200);// tone(12,880,100);  
+     tone(12,100,100);// tone(12,880,100);  
     else 
-     tone(12,880,100);
+     tone(12,880,70);
  
      
     digitalWrite(led_out,LOW);
@@ -212,6 +212,10 @@ void setup()
      
  StartTime = millis();
      sounds();
+   myservo.attach(9);
+  myservo.write(val0);  
+   delay(1000);
+   myservo.detach();
 }
 
 void loop() 
@@ -238,13 +242,19 @@ void loop()
    else{
      Serial.println(F(" Just burn !"));
      sounds();
-    Balloon_Burster(50);  // 50回動作させる
+    Balloon_Burster(20);  // 50回動作させる
+    
+    myservo.write(val0); 
+   delay(1000); 
+    myservo.detach();
     sounds();
     
-   }
+    }
   
   }
 
+
+    
   while (ss.available() > 0)
     gps.encode(ss.read());
 
