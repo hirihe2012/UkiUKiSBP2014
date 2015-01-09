@@ -6,10 +6,10 @@
 #include <SoftwareSerial.h>
 #include <Servo.h> 
 Servo myservo;  // create servo object to control a servo 
-
+Servo myservo2;  // create servo object to control a servo 
 
 /* Altitude of balloon bursting */
-static const double AltiBurstBalloon =  5.0 ; // unit is metars [m]
+static const double AltiBurstBalloon =  25000.0 ; // unit is metars [m]
 double tempD;
 
 /*
@@ -33,7 +33,10 @@ unsigned long StartTime;
 int potpin0 = 0;  // analog pin0 used for Cutter Position of pauseing to connect the potentiometer
 int potpin1 = 1;  // analog pin1 used for Cutter Position of cutting to connect the potentiometer
 int potpin2 = 2;  // analog pin2 used for timer to connect the potentiometer
-int val0,val1,val2;    // variable to read the value from the analog pin 
+//int val0,val1,val2;    // variable to read the value from the analog pin 
+int val0=170;
+int val1=20;
+int val2=500;    // variable to read the value from the analog pin 
 
 int led_out = 13; // LED connected to digital pin 13
 int mode_sw = 4; // mode SW connected to digital pin 4
@@ -44,23 +47,22 @@ unsigned long chg_time = 500;
 void Balloon_Burster(int times)
 {
   int i;
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+   myservo2.attach(10);
+ 
+/  /  sounds();
   
+//  tone(12,440,300);
   for(i=0;i<times;i++)
   {
-    val2 = analogRead(potpin2);
-    val0 = analogRead(potpin0);      
-    val0 = map(val0, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
-    myservo.write(val0);   
-    delay(val2);  Serial.print(F(" giko"));
-    val1 = analogRead(potpin1);      
-    val2 = map(val1, 0, 1023, 0, 179);     // scale it to use it with the servo (value between 0 and 180) 
     myservo.write(val1);   
-    delay(val2);   Serial.println(F(" giko  ~"));
+    delay(val2);
+    myservo.write(val0);   
+    delay(val2);   
   }
-  
+   myservo.detach();
 }
- 
+/*
 void LEDchika(void)
 {
    if(millis() - prev_time > chg_time){
@@ -71,21 +73,50 @@ void LEDchika(void)
         digitalWrite(led_out,LOW);
     }
 }
+*/
+
+void LEDchika(void)
+{
+  static int i;
+  int ftone;
+  
+   if(millis() - prev_time > chg_time){
+      prev_time = millis();
+      if(digitalRead(led_out) == LOW)
+        digitalWrite(led_out,HIGH);
+      else
+        digitalWrite(led_out,LOW);
+        
+        i++;
+        if(i>2){i=0; 
+           tone(12,880,50);
+        }
+    }
+}
+
 
 void LEDchikachika(int times)
 {
    int i;
+   int ftone;
    
-   i=times;
+   i=times; 
    while(i)
-   if(millis() - prev_time > 100){
-      prev_time = millis(); i--;
+   if(millis() - prev_time > 70){
+    
+     prev_time = millis(); i--;
       if(digitalRead(led_out) == LOW)
         digitalWrite(led_out,HIGH);
       else
         digitalWrite(led_out,LOW);
     }
     
+    if(times<4) 
+     tone(12,100,100);// tone(12,880,100);  
+    else 
+     tone(12,880,70);
+ 
+     
     digitalWrite(led_out,LOW);
 }
 
@@ -126,6 +157,36 @@ TinyGPSCustom pdop(gps, "GPGSA", 15); // $GPGSA sentence, 15th element
 TinyGPSCustom hdop(gps, "GPGSA", 16); // $GPGSA sentence, 16th element
 TinyGPSCustom vdop(gps, "GPGSA", 17); // $GPGSA sentence, 17th element
 
+#include "pitches.h"
+
+// notes in the melody:
+int melody[] = {
+  NOTE_C4, NOTE_G3,NOTE_G3, NOTE_A3, NOTE_G3,0, NOTE_B3, NOTE_C4};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = {
+  4, 8, 8, 4,4,4,4,4 };
+  
+void sounds(){
+ for (int thisNote = 0; thisNote < 8; thisNote++) {
+
+    // to calculate the note duration, take one second 
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000/noteDurations[thisNote];
+    tone(12, melody[thisNote],noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(12);
+  }
+  
+}
+
+
 void setup() 
 {
   Serial.begin(115200);
@@ -138,7 +199,7 @@ void setup()
   Serial.println();
 
   Serial.println(F("UkiUkiSBP2014 using TinyGPSCustom"));
-  Serial.print(F("Testing UkiUkiSBP2014  v.1.0a  ")); 
+  Serial.print(F("Testing UkiUkiSBP2014  v.1.2b  ")); 
   Serial.println(F("by Mujirushi Seisakusyo IRIE Ltd."));
   Serial.println();
   
@@ -151,10 +212,19 @@ void setup()
 //     Balloon_Burster(5);  //最初の５回は試し動作を行う。
      
  StartTime = millis();
+     sounds();
+   myservo.attach(9);
+  myservo.write(val0);  
+   delay(1000);
+   myservo.detach();
 }
 
 void loop() 
 {
+  
+   // LEDchika();
+
+
   // Every time anything is updated, print everything.
   if (gps.altitude.isUpdated() || gps.satellites.isUpdated() ||
     pdop.isUpdated() || hdop.isUpdated() || vdop.isUpdated())
@@ -165,18 +235,27 @@ void loop()
     Serial.print(F(" VDOP=")); Serial.print(vdop.value());
     Serial.print(F(" SATS=")); Serial.print(gps.satellites.value());
     tempD =(double)gps.altitude.meters();
-    LEDchikachika((int)gps.satellites.value());
+      LEDchikachika((int)gps.satellites.value()); 
 
    if( tempD < AltiBurstBalloon){
       Serial.println(F(" Not burned"));
    }
    else{
      Serial.println(F(" Just burn !"));
-    Balloon_Burster(50);  // 50回動作させる
-   }
+     sounds();
+    Balloon_Burster(20);  // 50回動作させる
+    
+    myservo.write(val0); 
+   delay(1000); 
+    myservo.detach();
+    sounds();
+    
+    }
   
   }
 
+
+    
   while (ss.available() > 0)
     gps.encode(ss.read());
 
